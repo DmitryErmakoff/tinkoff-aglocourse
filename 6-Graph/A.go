@@ -4,6 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
+)
+
+var (
+	in  = bufio.NewReader(os.Stdin)
+	out = bufio.NewWriter(os.Stdout)
 )
 
 // Реализация графа
@@ -25,15 +31,10 @@ func (g *Graph) AddEdge(a, b int) {
 }
 
 func (g *Graph) Print() {
-	for nodes, neghbors := range g.nodes {
-		fmt.Fprintf(out, "%d -> %v\n", nodes, neghbors)
+	for nodes, neighbors := range g.nodes {
+		fmt.Fprintf(out, "%d -> %v\n", nodes, neighbors)
 	}
 }
-
-var (
-	in  = bufio.NewReader(os.Stdin)
-	out = bufio.NewWriter(os.Stdout)
-)
 
 func main() {
 	defer out.Flush()
@@ -48,30 +49,41 @@ func main() {
 		fmt.Fscanln(in, &n1, &n2)
 		g.AddEdge(n1, n2)
 	}
-	used := make([]int, N)
-	for i := 0; i < N; i++ {
+	used := make([]int, N+1)
+	used[0] = 999
+	countComponents := 0
+	for i := 1; i <= N; i++ {
+		if used[i] == 0 {
+			arr := make([]int, 0)
+			dfs(g, i, used, &arr)
+			countComponents++
+		}
+	}
+	fmt.Fprintln(out, countComponents)
+	for i := 1; i < len(used); i++ {
 		used[i] = 0
 	}
-	count := 0
-
-}
-
-func dfs1(g *Graph, used []int, start int) {
-	used[start-1] = 1
-	for _, neighbor := range g.nodes[start] {
-		if used[neighbor-1] == 0 {
-
-			dfs1(g, used, neighbor)
+	for i := 1; i <= N; i++ {
+		if used[i] == 0 {
+			arr := make([]int, 0)
+			arr = append(arr, i)
+			dfs(g, i, used, &arr)
+			fmt.Fprintln(out, len(arr))
+			sort.Ints(arr)
+			for j := range arr {
+				fmt.Fprintf(out, "%d ", arr[j])
+			}
+			fmt.Fprintln(out)
 		}
 	}
 }
 
-func dfs(g *Graph, used []int, start int) {
-	used[start-1] = 1
-	for _, neighbor := range g.nodes[start] {
-		if used[neighbor-1] == 0 {
-			fmt.Printf("%d ", neighbor)
-			dfs(g, used, neighbor)
+func dfs(g *Graph, start int, used []int, arr *[]int) {
+	used[start] = 1
+	for _, neighbors := range g.nodes[start] {
+		if used[neighbors] == 0 {
+			*arr = append(*arr, neighbors)
+			dfs(g, neighbors, used, arr) // Здесь исправленный вызов функции с передачей верного соседа
 		}
 	}
 }
