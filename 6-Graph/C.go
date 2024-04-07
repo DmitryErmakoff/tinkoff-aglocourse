@@ -21,6 +21,7 @@ func dfs(v int) {
 			flag = 1
 			return
 		}
+
 		if used[to] == 0 {
 			dfs(to)
 		}
