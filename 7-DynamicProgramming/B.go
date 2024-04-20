@@ -1,24 +1,25 @@
 package main
 
 import (
-	"container/ring"
 	"fmt"
 )
 
 func main() {
-	splash := ring.New(2)
-	splash.Value = 2
-	splash = splash.Next()
-	splash.Value = 3
+	var n, answ int
+	fmt.Scanln(&n)
 
-	var n int
-	fmt.Scan(&n)
+	a := make([][3]int, n)
+	a[0] = [3]int{1, 1, 1}
 
-	for i := 2; i <= n; i++ {
-		nextSplash := &ring.Ring{Value: splash.Prev().Value.(int) + splash.Value.(int)}
-		splash.Link(nextSplash)
-		splash = nextSplash
+	for i := 1; i < n; i++ {
+		a[i][0] = a[i-1][1] + a[i-1][2]
+		a[i][1] = a[i-1][0] + a[i-1][1] + a[i-1][2]
+		a[i][2] = a[i][1]
 	}
 
-	fmt.Println(splash.Value, "")
+	for i := 0; i < 3; i++ {
+		answ += a[n-1][i]
+	}
+
+	fmt.Println(answ)
 }
